@@ -80,7 +80,7 @@ app.put('/api/persons/:id', (req, res) => {
 app.get('/info', (req, res) => {
     var people = []
     Person
-        .find
+        .find({})
         .then(response => {people.concat(response.map(Person.format))
         res.send(`<p>puhelinluettelossa ${people.length} henkilön tiedot</p> ${Date()}`)
         })
