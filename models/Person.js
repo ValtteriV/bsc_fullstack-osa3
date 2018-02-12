@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
-const url = 'mongodb://penetrate:mydatabase@ds229448.mlab.com:29448/fullstack-osa3'
+const url = process.env.MONGODB_URI
 
 mongoose.connect(url)
 

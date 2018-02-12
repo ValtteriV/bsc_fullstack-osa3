@@ -51,17 +51,24 @@ app.post('/api/persons', (req, res) => {
     if (!person.number) {
         errors.errorNonumber = "in this day and age people should have a number"
     }
-    if (errors.length > 0) {
-        return res.status(400).json(errors)
-    }
-    push = new Person({
-        name: person.name,
-        number: person.number
-    })
-    push
-        .save()
-        .then(savedPerson => {
-            res.json(Person.format(savedPerson))
+    Person
+        .find({name: person.name})
+        .then(result => {
+            if (result) {
+                errors.errorIsAlreadyThere = "we shouldn't be digging into areas that have already been explored"
+            }
+            if (errors.length > 0) {
+                return res.status(400).json(errors)
+            }
+            push = new Person({
+                name: person.name,
+                number: person.number
+            })
+            push
+                .save()
+                .then(savedPerson => {
+                    res.json(Person.format(savedPerson))
+                })
         })
 })
 
@@ -71,7 +78,12 @@ app.put('/api/persons/:id', (req, res) => {
 })
 
 app.get('/info', (req, res) => {
-    res.send(`<p>puhelinluettelossa ${persons.length} henkilön tiedot</p> ${Date()}`)
+    var people = []
+    Person
+        .find
+        .then(response => {people.concat(response.map(Person.format))
+        res.send(`<p>puhelinluettelossa ${people.length} henkilön tiedot</p> ${Date()}`)
+        })
 })
 
 const error = (req, res) => {
