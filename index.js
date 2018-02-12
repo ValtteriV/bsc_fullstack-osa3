@@ -31,10 +31,15 @@ app.get('/api/persons/:id', (req, res) => {
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    persons = persons.filter(note => note.id !== id)
-
-    res.status(204).end()
+    Person
+        .findByIdAndRemove(request.params.id)
+        .then(result => {
+            res.status(204).end()
+        })
+        .catch(error => {
+            console.log(error)
+            response.status(400).send({error: 'malformatted id'})
+        })
 })
 
 app.post('/api/persons', (req, res) => {
@@ -45,9 +50,6 @@ app.post('/api/persons', (req, res) => {
     }
     if (!person.number) {
         errors.errorNonumber = "in this day and age people should have a number"
-    }
-    if (persons.find(per => per.name === person.name)) {
-        errors.errorAlreadyin = "this person is already in our database, you can't have two numbers"
     }
     if (errors.length > 0) {
         return res.status(400).json(errors)
@@ -61,6 +63,11 @@ app.post('/api/persons', (req, res) => {
         .then(savedPerson => {
             res.json(Person.format(savedPerson))
         })
+})
+
+app.put('/api/persons/:id', (req, res) => {
+    Person.findByIdAndUpdate(req.params.id, res.body)
+        .then(response => {res.status(204).json(Person.format(response))})
 })
 
 app.get('/info', (req, res) => {
