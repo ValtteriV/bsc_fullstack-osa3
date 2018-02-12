@@ -2,15 +2,13 @@ const express = require('express')
 const app = express()
 const bodyparser = require('body-parser')
 const morgan = require('morgan')
-const Person = require("./models/Person")
+const Person = require('./models/Person')
 app.use(express.static('build'))
 morgan.token('body', function (req, res) {return req.body ? JSON.stringify(req.body) : {}})
 morgan.token('content-length', function (req, res) { return req.headers['content-type']})
 app.use(morgan(':method :url :body :status :content-length - :response-time ms'))
 
 app.use(bodyparser.json())
-
-persons = []
 
 
 app.get('/api/persons', (req, res) => {
@@ -32,35 +30,35 @@ app.get('/api/persons/:id', (req, res) => {
 
 app.delete('/api/persons/:id', (req, res) => {
     Person
-        .findByIdAndRemove(request.params.id)
+        .findByIdAndRemove(req.params.id)
         .then(result => {
             res.status(204).end()
         })
         .catch(error => {
             console.log(error)
-            response.status(400).send({error: 'malformatted id'})
+            res.status(400).send({error: 'malformatted id'})
         })
 })
 
 app.post('/api/persons', (req, res) => {
     const person = req.body
-    errors = {}
+    const errors = {}
     if (!person.name) {
-        errors.errorNoname = "person must have a name"
+        errors.errorNoname = 'person must have a name'
     }
     if (!person.number) {
-        errors.errorNonumber = "in this day and age people should have a number"
+        errors.errorNonumber = 'in this day and age people should have a number'
     }
     Person
         .find({name: person.name})
         .then(result => {
             if (result) {
-                errors.errorIsAlreadyThere = "we shouldn't be digging into areas that have already been explored"
+                errors.errorIsAlreadyThere = 'we shouldn\'t be digging into areas that have already been explored'
             }
             if (errors.length > 0) {
                 return res.status(400).json(errors)
             }
-            push = new Person({
+            const push = new Person({
                 name: person.name,
                 number: person.number
             })
@@ -82,7 +80,7 @@ app.get('/info', (req, res) => {
     Person
         .find({})
         .then(response => {people.concat(response.map(Person.format))
-        res.send(`<p>puhelinluettelossa ${people.length} henkilön tiedot</p> ${Date()}`)
+            res.send(`<p>puhelinluettelossa ${people.length} henkilön tiedot</p> ${Date()}`)
         })
 })
 
