@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const bodyparser = require('body-parser')
 const morgan = require('morgan')
-
+app.use(express.static('build'))
 morgan.token('body', function (req, res) {return req.body ? JSON.stringify(req.body) : {}})
 morgan.token('content-length', function (req, res) { return req.headers['content-type']})
 app.use(morgan(':method :url :body :status :content-length - :response-time ms'))
