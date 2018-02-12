@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const bodyparser = require('body-parser')
 const morgan = require('morgan')
+const Person = require("./models/Person")
 app.use(express.static('build'))
 morgan.token('body', function (req, res) {return req.body ? JSON.stringify(req.body) : {}})
 morgan.token('content-length', function (req, res) { return req.headers['content-type']})
@@ -9,41 +10,24 @@ app.use(morgan(':method :url :body :status :content-length - :response-time ms')
 
 app.use(bodyparser.json())
 
-var persons = [
-    {
-        name: "Arto Hellas",
-        number: "040-123456",
-        id: 1
-    },
-    {
-        name: "Martti Tienari",
-        number: "040-123456",
-        id: 2
-    },
-    {
-        name: "Arto Järvinen",
-        number: "040-123457",
-        id: 3
-    },
-    {
-        name: "Lea Kutvonen",
-        number: "040-123456",
-        id: 4
-    }
-]
+persons = []
+
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+
+    Person
+        .find({})
+        .then(response => {
+            res.json(response.map(Person.format))})
+
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find(per => per.id === id)
-    if (person) {
-        res.json(person)
-    } else {
-        res.status(404).end()
-    }
+    Person
+        .findById(req.params.id)
+        .then(person => {
+            res.json(Person.format(person))
+        })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -68,10 +52,15 @@ app.post('/api/persons', (req, res) => {
     if (errors.length > 0) {
         return res.status(400).json(errors)
     }
-    person.id = Math.floor(Math.random()*100000)
-    console.log(person)
-    persons = persons.concat(person)
-    res.json(person)
+    push = new Person({
+        name: person.name,
+        number: person.number
+    })
+    push
+        .save()
+        .then(savedPerson => {
+            res.json(Person.format(savedPerson))
+        })
 })
 
 app.get('/info', (req, res) => {
